@@ -2,11 +2,11 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
   name: example-cluster-1-fluxcd
-  namespace: flux-system
+  namespace: same-ns-as-secret
 spec:
   interval: 2m
   retryInterval: 1m
-  kubeconfig:
+  kubeConfig:
     secretRef:
       # This secret should contain a field (.data.value) which contains the kubeconfig.
       name: example-cluster-1-kubeconfig
