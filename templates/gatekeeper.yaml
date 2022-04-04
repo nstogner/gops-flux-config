@@ -1,0 +1,63 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: HelmRepository
+metadata:
+  name: gatekeeper
+  namespace: flux-system
+spec:
+  interval: 1m
+  url: https://open-policy-agent.github.io/gatekeeper/charts
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: gatekeeper
+  namespace: flux-system
+spec:
+  interval: 5m
+  targetNamespace: gatekeeper-system
+  install:
+    createNamespace: true
+  chart:
+    spec:
+      chart: gatekeeper
+      version: '3.7.0'
+      sourceRef:
+        kind: HelmRepository
+        name: gatekeeper
+        namespace: flux-system
+      interval: 1m
+  values:
+    podLabels:
+      cluster-name: {{.Values.clusterName}}
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: gatekeeper-constraint-templates
+  namespace: flux-system
+spec:
+  interval: 2m
+  retryInterval: 1m
+  prune: true
+  force: true
+  sourceRef:
+    kind: GitRepository
+    name: cluster-config
+    namespace: flux-system
+  path: "./gatekeeper-constraint-templates"
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: gatekeeper-constraints
+  namespace: flux-system
+spec:
+  interval: 2m
+  retryInterval: 1m
+  prune: true
+  force: true
+  sourceRef:
+    kind: GitRepository
+    name: cluster-config
+    namespace: flux-system
+  path: "./gatekeeper-constraints"
