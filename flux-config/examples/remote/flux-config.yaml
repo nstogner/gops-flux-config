@@ -1,0 +1,22 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: example-cluster-1-flux-config
+  namespace: same-ns-as-secret
+spec:
+  interval: 2m
+  targetNamespace: flux-system
+  kubeConfig:
+    secretRef:
+      # This secret should contain a field (.data.value) which contains the kubeconfig.
+      name: example-cluster-1-kubeconfig
+  chart:
+    spec:
+      chart: flux-config
+      sourceRef:
+        kind: GitRepository
+        name: flux-config
+        namespace: flux-system
+      interval: 1m
+  values:
+    clusterName: example-1
